@@ -11,6 +11,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class Controller {
 
@@ -62,7 +63,8 @@ public class Controller {
 
             while (allMovies.next()) {
 
-                System.out.println(allMovies.getString("tytul"));
+                Movie mov = Movie.create(allMovies.getString("tytul"), allMovies.getInt("ocena"), allMovies.getString("komentarz"));
+                movieTableView.getItems().add(mov);
 
             }
 
@@ -70,17 +72,25 @@ public class Controller {
             e.printStackTrace();
         }
 
-        Movie mov1 =  Movie.create("a",1,"c");
-        Movie mov2 =  Movie.create("sd",14,"sdafsd");
-        Movie mov3 =  Movie.create("3f",10,"c231243");
-        movieTableView.getItems().addAll(mov1, mov2, mov3);
+//        Movie mov1 =  Movie.create("a",1,"c");
+//        Movie mov2 =  Movie.create("sd",14,"sdafsd");
+//        Movie mov3 =  Movie.create("3f",10,"c231243");
+//        movieTableView.getItems().addAll(mov1, mov2, mov3);
 
 
     }
 
     private void editFocusedCell() {
+
         TablePosition<Movie, ?> focusedCell = movieTableView.focusModelProperty().get().focusedCellProperty().get();
         movieTableView.edit(focusedCell.getRow(), focusedCell.getTableColumn());
+
+    }
+
+    public void saveDataToDatabase() {
+
+        // tutaj jakoś preparedStatements wchodzą?
+
     }
 
 }

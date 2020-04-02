@@ -14,7 +14,7 @@
             <TableView fx:id="movieTableView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn prefWidth="154.0" text="Tytuł" />
-                <TableColumn minWidth="0.0" prefWidth="69.0" text="Ocena" />
+                <TableColumn fx:id="ocena" minWidth="0.0" prefWidth="69.0" text="Ocena" />
                   <TableColumn prefWidth="399.0" text="Komentarz" />
               </columns>
             </TableView>
