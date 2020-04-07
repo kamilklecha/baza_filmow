@@ -1,7 +1,9 @@
 package baza;
 
+import com.sun.org.apache.bcel.internal.generic.ObjectType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
+import javafx.scene.input.KeyCode;
 import object.Movie;
 
 import javafx.scene.control.TableColumn;
@@ -68,29 +70,73 @@ public class Controller {
 
             }
 
+            myConn.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-//        Movie mov1 =  Movie.create("a",1,"c");
-//        Movie mov2 =  Movie.create("sd",14,"sdafsd");
-//        Movie mov3 =  Movie.create("3f",10,"c231243");
-//        movieTableView.getItems().addAll(mov1, mov2, mov3);
-
 
     }
 
     private void editFocusedCell() {
 
         TablePosition<Movie, ?> focusedCell = movieTableView.focusModelProperty().get().focusedCellProperty().get();
+
+        // https://stackoverflow.com/questions/21987552/how-to-make-a-javafx-tableview-cell-editable-without-first-pressing-enter/21988562#21988562 - może to zrobić?
+
         movieTableView.edit(focusedCell.getRow(), focusedCell.getTableColumn());
 
     }
 
-    public void saveDataToDatabase() {
 
-        // tutaj jakoś preparedStatements wchodzą?
+    // pozwala na dodanie do bazy wartości w podświetlonej (focused) komórce
+    public void saveEditedCell() {
+
+        TablePosition<Movie, ?> focusedCell = movieTableView.focusModelProperty().get().focusedCellProperty().get();
+
+        Integer movieId = focusedCell.getRow();
+        Integer columnId = focusedCell.getColumn();
+        String columnName = "";
+
+        // przypisuje nazwy odpowiednim kolumnom, żeby dobrze odnieść się do nich w bazie SQL
+        switch(columnId) {
+
+            case 0:
+                columnName = "tytul";
+                break;
+            case 1:
+                columnName = "ocena";
+                break;
+            case 2:
+                columnName = "komentarz";
+            default:
+                break;
+
+        }
+
+        Object cellValue = (Object) focusedCell.getTableColumn().getCellObservableValue(movieId).getValue();
+        System.out.println(cellValue);
+
+        String finalColumnName = columnName; // zalecenie IntelliJ
+
+        String url = "jdbc:mysql://localhost:3306/Movies?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+        String user = "root";
+        String password = "12345678";
+        try {
+            Connection myConn = DriverManager.getConnection(url, user, password);
+            String sqlPart = finalColumnName.toString() + "=\"" + cellValue.toString() + "\"";
+            movieId = movieId + 1;
+            String sql = "UPDATE Movies.Movies SET " + sqlPart + " WHERE id=" + movieId;
+            System.out.println(sql);
+            PreparedStatement updateRow = myConn.prepareStatement(sql);
+
+            updateRow.executeUpdate();
+
+            myConn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
-
 }
