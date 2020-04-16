@@ -1,9 +1,7 @@
 package baza;
 
-import com.sun.org.apache.bcel.internal.generic.ObjectType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableView;
-import javafx.scene.input.KeyCode;
 import object.Movie;
 
 import javafx.scene.control.TableColumn;
@@ -13,7 +11,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.sql.*;
-import java.util.ArrayList;
 
 public class Controller {
 
@@ -89,7 +86,10 @@ public class Controller {
     }
 
 
-    // pozwala na dodanie do bazy wartości w podświetlonej (focused) komórce
+    // pozwala na dodanie do bazy wartości w podświetlonej (focused) komórce --> działa to tylko wtedy, gdy faktycznie jest sfokusowana komórka
+    // a może warto zrobić tak, że ta komórka, na której wykryty zostanie ENTER, dostaje index 1
+    // potem w momencie kliknięcia przycisku zapisz - odpala się funkcja, która updateuje komórki zmienione
+    // na razie tylko pomysł
     public void saveEditedCell() {
 
         TablePosition<Movie, ?> focusedCell = movieTableView.focusModelProperty().get().focusedCellProperty().get();
@@ -131,6 +131,32 @@ public class Controller {
             PreparedStatement updateRow = myConn.prepareStatement(sql);
 
             updateRow.executeUpdate();
+
+            myConn.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void addMovie() {
+
+        Movie mov = Movie.create("Nowy film", 0, "Nowy komentarz");
+        movieTableView.getItems().add(mov);
+        movieTableView.refresh();
+
+        // może warto je zmienić na jakieś globalne zmienne, zeby nie powtarzać cały czas?
+        String url = "jdbc:mysql://localhost:3306/Movies?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&allowMultiQueries=true";
+        String user = "root";
+        String password = "12345678";
+
+        try {
+            Connection myConn = DriverManager.getConnection(url, user, password);
+            String sql = "INSERT INTO Movies.Movies(tytul) VALUES('')";
+            PreparedStatement addNewRow = myConn.prepareStatement(sql);
+
+            addNewRow.executeUpdate();
 
             myConn.close();
 
